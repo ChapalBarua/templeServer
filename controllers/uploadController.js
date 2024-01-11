@@ -1,6 +1,7 @@
 const multer = require('multer');
 const fs = require('fs');
 var constants = require('../helpers/constants');
+const sharp = require('sharp');
 
 // Configure multer storage and file name
 const fileStorage = multer.diskStorage({
@@ -11,85 +12,78 @@ const fileStorage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
-const imageStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, constants.UPLOADED_IMAGE_PATH);
-    },
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + '-' + file.originalname);
-    }
-  });
-
-
-// Create multer upload instance
 const fileUpload = multer({ storage: fileStorage });
-const imageUpload = multer({ storage: imageStorage });
 // Custom file upload middleware
-const uploadImages = (req, res) => {
+const uploadFiles = (req, res) => {
   // Use multer upload instance
-  imageUpload.array('files', 10)(req, res, (err) => {
+  fileUpload.array('files', 10)(req, res, (err) => {
     if (err instanceof multer.MulterError) {
         // A Multer error occurred when uploading.
-        res.status(500).send({ msg: `Multer uploading error: ${err.message}`}).end();
+        res.status(500).send({ msg: `Multer uploading error: ${err.message}` }).end();
         return;
     } else if (err) {
         // An unknown error occurred when uploading.
         if (err.name == 'ExtensionError') {
-            res.status(413).send({ msg: err.message}).end();
+            res.status(413).send({ msg: err.message }).end();
         } else {
+            console.log('unknownError'+err.message);
             res.status(500).send( { msg: `unknown uploading error: ${err.message}`}).end();
         }
         return;
     }
-    const files = req.files;
-    const errors = [];
-    // Validate file types and sizes
-    files.forEach((file) => {
-      const allowedTypes = ['image/jpeg', 'image/png','image/jpg', 'image/svg'];
-      const maxSize = 15 * 1024 * 1024; // 15MB
-
-      if (!allowedTypes.includes(file.mimetype)) {
-        errors.push({msg: `Invalid file type: ${file.originalname}`});
-      }
-      if (file.size > maxSize) {
-        errors.push({msg :`File too large: ${file.originalname}`});
-      }
-    });
-
-    // Handle validation errors
-    if (errors.length > 0) {
-      // Remove uploaded files
-      files.forEach((file) => {
-        fs.unlinkSync(file.path);
-      });
-
-      return res.status(400).json(errors[0]);
-    }
-    res.status(200).send({msg: 'Your images uploaded.'});
+    res.status(200).send({msg: 'Your files uploaded.'});
   });
 };
 
 
-// Custom file upload middleware
-const uploadFiles = (req, res) => {
-    // Use multer upload instance
-    fileUpload.array('files', 10)(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-          // A Multer error occurred when uploading.
-          res.status(500).send({ msg: `Multer uploading error: ${err.message}` }).end();
-          return;
-      } else if (err) {
-          // An unknown error occurred when uploading.
-          if (err.name == 'ExtensionError') {
-              res.status(413).send({ msg: err.message }).end();
-          } else {
-              console.log('unknownError'+err.message);
-              res.status(500).send( { msg: `unknown uploading error: ${err.message}`}).end();
-          }
-          return;
+const imageStorage = multer.memoryStorage();
+
+const imageFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb({msg: 'Please upload only images'}, false);
+  }
+};
+
+const imageUpload = multer({
+  storage: imageStorage,
+  fileFilter: imageFilter
+});
+
+const uploadImages = (req, res) => {
+  imageUpload.array("files", 10)(req, res, async err => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === "LIMIT_UNEXPECTED_FILE") {
+        return res.status(500).send({msg: "Too many files to upload."});
+      }else {
+        return res.status(500).send({ msg: `Multer uploading error: ${err.message}`});
       }
-      res.status(200).send({msg: 'Your files uploaded.'});
-    });
-  };
+    } else if (err) {
+      if (err.name == 'ExtensionError') {
+        return res.status(413).send({ msg: err.message});
+      } else {
+        return res.status(500).send(err);
+      }
+    }else {
+      if (!req.files) return res.status(500).send({ msg: 'No file found'});
+
+      // compress uploaded image
+      await Promise.all(
+        req.files.map(async file => {
+          const filename = file.originalname.replace(/\..+$/, "");
+          const newFilename = `bezkoder-${filename}-${Date.now()}.jpeg`;
+
+          await sharp(file.buffer)
+            .resize(1000, 1000)
+            .toFormat("jpeg")
+            .jpeg({ quality: 20 })
+            .toFile(`${constants.UPLOADED_IMAGE_PATH}/${newFilename}`);
+        })
+      );
+      return res.status(200).send({msg: "Images Uploaded Successfully."});
+    }
+  });
+};
 
 module.exports = {uploadImages, uploadFiles};
