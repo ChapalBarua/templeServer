@@ -16,7 +16,7 @@ const fileUpload = multer({ storage: fileStorage });
 // Custom file upload middleware
 const uploadFiles = (req, res) => {
   // Use multer upload instance
-  fileUpload.array('files', 10)(req, res, (err) => {
+  fileUpload.array('files')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
         // A Multer error occurred when uploading.
         res.status(500).send({ msg: `Multer uploading error: ${err.message}` }).end();
@@ -52,7 +52,7 @@ const imageUpload = multer({
 });
 
 const uploadImages = (req, res) => {
-  imageUpload.array("files", 5)(req, res, async err => {
+  imageUpload.array("files")(req, res, async err => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
         return res.status(500).send({msg: "Too many files to upload."});
