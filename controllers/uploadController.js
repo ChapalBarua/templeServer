@@ -1,7 +1,8 @@
 const multer = require('multer');
-const fs = require('fs');
 var constants = require('../helpers/constants');
 const sharp = require('sharp');
+const shell = require('shelljs');
+var path = require('path');
 
 // Configure multer storage and file name
 const fileStorage = multer.diskStorage({
@@ -81,6 +82,7 @@ const uploadImages = (req, res) => {
             .toFile(`${constants.UPLOADED_IMAGE_PATH}/${newFilename}`);
         })
       );
+      shell.exec(path.join(__dirname, '../helpers/cleaner.js'));
       return res.status(200).send({msg: "Images Uploaded Successfully."});
     }
   });
