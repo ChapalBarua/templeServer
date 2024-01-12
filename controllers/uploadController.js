@@ -52,7 +52,7 @@ const imageUpload = multer({
 });
 
 const uploadImages = (req, res) => {
-  imageUpload.array("files", 10)(req, res, async err => {
+  imageUpload.array("files", 5)(req, res, async err => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
         return res.status(500).send({msg: "Too many files to upload."});
