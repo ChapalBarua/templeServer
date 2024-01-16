@@ -75,7 +75,7 @@ const uploadImages = (req, res) => {
           const newFilename = `bezkoder-${filename}-${Date.now()}.jpeg`;
 
           await sharp(file.buffer)
-            .resize(1000, 1000)
+            .resize(1000, 800)
             .toFormat("jpeg")
             .jpeg({ quality: 20 })
             .toFile(`${constants.UPLOADED_IMAGE_PATH}/${newFilename}`);
