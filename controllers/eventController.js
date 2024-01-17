@@ -18,7 +18,7 @@ const getAllEvents = (req, res)=>{
 }
 
 const editEvent = (req, res)=>{
-    Event.findOneAndUpdate({Id: req.body.Id}, req.body).then(()=>{
+    Event.findOneAndReplace({Id: req.body.Id}, req.body).then(()=>{
         res.status(200).send({msg: 'Event Edited Successfully'});
     }).catch((error)=>{
         res.status(400).send({msg: 'Event could not be edited:-'+ error});
