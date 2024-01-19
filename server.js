@@ -9,11 +9,6 @@ var cors = require("cors");
 var constants = require("./helpers/constants");
 const mongooseConnection = require('./helpers/mongoose-connection');
 
-// var options = {
-//     key: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.key'),
-//     cert: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.crt')
-//   };
-
 var options = {
   key: fs.readFileSync('certs/cert.key'),
   cert: fs.readFileSync('certs/cert.crt')

@@ -5,14 +5,6 @@ var http = require('http');
 const path = require('path');
 var fs = require('fs');
 
-
-
-
-// var options = {
-//     key: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.key'),
-//     cert: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.crt')
-// };
-
 var options = {
   key: fs.readFileSync('certs/cert.key'),
   cert: fs.readFileSync('certs/cert.crt')
@@ -28,13 +20,13 @@ app.use(function requireHTTPS(req, res, next) {
   next();
 });
 
-// redirect bso-toronto.ca to www.bso-toronto.ca
-app.use(function requireWWW(req, res, next) {
-  if(!req.headers.host.startsWith('www.')){
-    return res.redirect('https://' + 'www.' + req.headers.host + req.url);
-  }
-  next();
-});
+// redirect site.ca to www.site.ca
+// app.use(function requireWWW(req, res, next) {
+//   if(!req.headers.host.startsWith('www.')){
+//     return res.redirect('https://' + 'www.' + req.headers.host + req.url);
+//   }
+//   next();
+// });
 
 http.createServer(app).listen(80);
 
