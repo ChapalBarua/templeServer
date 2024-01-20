@@ -5,6 +5,7 @@ const moment = require("moment");
 const NodeRSA = require('node-rsa');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+var constants = require("../helpers/constants");
 
 var keyPath = path.join(__dirname, '../helpers/private_key.txt');
 const keyData = fs.readFileSync(keyPath).toString();
@@ -42,7 +43,7 @@ const register = async (req, res)=>{
                         email: req.body.email,
                         password: hash,
                         name: req.body.name,
-                        role: req.body.role,
+                        role: constants.USER_ROLE.GENERAL_USER,
                         creation_date: moment().format("MMMM Do YYYY, h:mm:ss a")
                     });
                     user.save().then(record=>{
@@ -88,7 +89,7 @@ function verifyAdmin(req, res, next){
     }
     
     
-    if(!payload || (payload.role!= 'Admin' && payload.role!= 'Super Admin')){
+    if(!payload || (payload.role!= constants.USER_ROLE.ADMIN && payload.role!= constants.USER_ROLE.SUPER_ADMIN)){
         return res.status(401).send({msg: 'Unauthorized Req'});
     }
     
