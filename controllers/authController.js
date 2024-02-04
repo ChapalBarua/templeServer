@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 var constants = require("../helpers/constants");
 
-var keyPath = path.join(__dirname, '../helpers/private_key.txt');
+var keyPath = constants.PRIVATE_KEY_PATH;
 const keyData = fs.readFileSync(keyPath).toString();
 var key = new NodeRSA(keyData, {encryptionScheme: 'pkcs1'});
 

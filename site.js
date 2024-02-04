@@ -6,8 +6,8 @@ const path = require('path');
 var fs = require('fs');
 
 var options = {
-    key: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.key'),
-    cert: fs.readFileSync('/home/ec2-user/templeServer/certs/cert.crt')
+    key: fs.readFileSync('/home/ec2-user/secrets/certs/cert.key'),
+    cert: fs.readFileSync('/home/ec2-user/secrets/certs/cert.crt')
 };
 
 const app = express();
