@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const emailPasscode = require('../helpers/secrets/secret_keys_backend');
 
 function sendEmail(req, res, next){
 
@@ -6,7 +7,7 @@ function sendEmail(req, res, next){
         service: 'gmail',
         auth: {
           user: 'site.torontobd.monastery@gmail.com',
-          pass: 'zhmw vchq jeed pvni'
+          pass: emailPasscode // passcode for gmail address
         }
     });
 
